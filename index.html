@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홍천군 정신건강복지센터 BI 기획 리포트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
+        .chart-container {
+            position: relative; width: 100%; max-width: 600px;
+            margin: 0 auto; height: 350px; max-height: 400px;
+        }
+        .da-al-ji-img {
+            height: 144px; /* 기존 대비 1.5배 확대 */
+            width: auto;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+        }
+        .nav-logo-img {
+            height: 48px; width: auto;
+        }
+        /* 다람쥐 캐릭터 브라운 톤 (#8B5E3C) 정자체 */
+        .squirrel-text {
+            color: #8B5E3C;
+            font-weight: 900;
+            font-style: normal;
+        }
+    </style>
+    <!-- Chosen Palette: Hibiscus & Healing (Teal #0D9488, Squirrel Brown #8B5E3C, Slate #1E293B) -->
+    <!-- Application Structure Plan:
+        1. 내비게이션: 구 홍천군 로고를 배치하여 리뉴얼 전 정체성 명시.
+        2. 히어로: 다알쥐 캐릭터 확대 배치 및 '치유의 유선형' 슬로건을 캐릭터 톤 정자체로 강조.
+        3. 구 로고 분석: 무궁화 기반 구 로고의 상징, 컬러 및 장단점 심층 분석 섹션 추가.
+        4. 신규 전략: 무궁화 꽃잎을 현대적으로 해체한 유선형 h 조형 논리 제시.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTMy/MDAxNzcwOTU4MjExOTk2.PuHkJVUO1TR0Su5jetxLmWfDKfIWHOC7M-DVDMwuZU8g.R2nd_Zff5P-vxybpX5GI-49HLHkSm3OLdkTb6ntQUckg.PNG/2026-02-13_13;48;39.PNG?type=w966" 
+                         alt="구 로고" class="nav-logo-img">
+                </div>
+                <div class="hidden md:flex items-center space-x-10 text-sm font-bold">
+                    <button onclick="scrollToSection('legacy')" class="text-slate-500 hover:text-teal-600 transition-colors">구 로고 분석</button>
+                    <button onclick="scrollToSection('reference')" class="text-slate-500 hover:text-teal-600 transition-colors">레퍼런스</button>
+                    <button onclick="scrollToSection('strategy')" class="text-slate-500 hover:text-teal-600 transition-colors">디자인 전략</button>
+                    <button onclick="scrollToSection('summary')" class="px-5 py-2 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all">리포트 복사</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative bg-white border-b border-slate-100 overflow-hidden min-h-[550px] flex items-center">
+        <div class="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-4xl">
+                <span class="inline-block py-1.5 px-4 rounded-full bg-teal-100 text-teal-700 text-xs font-black tracking-widest mb-6 uppercase">Strategic Branding 2026</span>
+                <h1 class="text-4xl md:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight mb-8">
+                    안정의 원형,<br>
+                    <span class="squirrel-text">치유의 유선형.</span>
+                </h1>
+                <p class="text-xl text-slate-500 leading-relaxed font-light mb-12">
+                    홍천의 상징 **무궁화**를 현대적 유선형으로 재해석하여<br>
+                    마음의 회복과 지역적 정체성을 하나로 통합합니다.
+                </p>
+                <div class="flex items-center gap-12">
+                    <button onclick="scrollToSection('strategy')" class="px-10 py-4 bg-teal-700 text-white rounded-2xl font-black shadow-2xl shadow-teal-700/30 hover:bg-teal-600 transition-all transform hover:-translate-y-1">
+                        디자인 컨셉 스튜디오
+                    </button>
+                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTI4/MDAxNzcwOTU3OTkzMTI3.xEp_RhasFKq0UsIBqF6vxrisBgyoV_GNKntditgEBEYg.IhmZAu7gRt-yiEuafj3Hi1z37XftgBTA_RwfiSAKib0g.PNG/%EB%8B%A4%EC%95%8C%EC%A5%90.png?type=w966" 
+                         alt="다알쥐 캐릭터" class="da-al-ji-img">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-32">
+
+        <!-- Section 1: Legacy Analysis -->
+        <section id="legacy">
+            <div class="flex flex-col lg:flex-row gap-16 items-start">
+                <div class="lg:w-1/3">
+                    <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-slate-100 text-center">
+                        <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-widest">Legacy Identity</p>
+                        <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTMy/MDAxNzcwOTU4MjExOTk2.PuHkJVUO1TR0Su5jetxLmWfDKfIWHOC7M-DVDMwuZU8g.R2nd_Zff5P-vxybpX5GI-49HLHkSm3OLdkTb6ntQUckg.PNG/2026-02-13_13;48;39.PNG?type=w966" 
+                             alt="구 로고" class="mx-auto h-32 mb-8">
+                        <div class="grid grid-cols-5 gap-1 px-4">
+                            <div class="h-2 bg-[#E5007E] rounded-full"></div>
+                            <div class="h-2 bg-[#009245] rounded-full"></div>
+                            <div class="h-2 bg-[#0071BC] rounded-full"></div>
+                            <div class="h-2 bg-[#F7941D] rounded-full"></div>
+                            <div class="h-2 bg-[#FCEE21] rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:w-2/3">
+                    <h2 class="text-3xl font-black text-slate-900 mb-8 italic tracking-tight">구 홍천군 로고 정밀 분석</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h4 class="font-black text-teal-700 mb-4">상징과 의미</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                무궁화의 꽃잎을 형상화하여 군민의 화합과 번영을 상징합니다. 중앙의 기둥은 홍천의 중심과 미래의 빛을 의미하며, 하단의 녹색 선은 청정한 자연 환경을 상징합니다.
+                            </p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                            <h4 class="font-black text-amber-700 mb-4">사용 컬러</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                오방색을 기반으로 적, 녹, 청, 황, 백색을 조화롭게 사용하였습니다. 각 컬러는 열정, 생명력, 신뢰, 희망, 순수함을 각각 내포하고 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div>
+                                <h5 class="text-teal-400 font-black mb-4 uppercase text-xs tracking-widest">Strength</h5>
+                                <p class="text-sm leading-relaxed text-slate-400 italic">지자체 로고로서의 보편적 안정감과 지역 정체성(무궁화)의 직접적인 표출.</p>
+                            </div>
+                            <div>
+                                <h5 class="text-amber-400 font-black mb-4 uppercase text-xs tracking-widest">Weakness</h5>
+                                <p class="text-sm leading-relaxed text-slate-400 italic">다중 컬러로 인한 시각적 분산, 소형화 시 가독성 저하 및 현대적 전문 의료 기관 이미지와의 격차.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Strategy Studio -->
+        <section id="strategy" class="bg-slate-900 rounded-[3rem] p-10 md:p-20 text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl -mr-40 -mt-40"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
+                <div>
+                    <span class="text-teal-400 font-black tracking-widest text-xs uppercase mb-4 block">New Strategy</span>
+                    <h2 class="text-3xl md:text-5xl font-black mb-8 leading-tight">무궁화를 모티프로 한<br>'치유의 꽃잎'</h2>
+                    <p class="text-slate-400 leading-relaxed mb-10 font-light">
+                        홍천의 군화인 무궁화의 꽃잎 곡선을 추출하여, 끊어짐 없이 이어지는 유선형 심볼로 재구성했습니다. 이는 상처 입은 마음이 유연하게 회복되어 다시 피어나는 **'재생과 성장'**의 과정을 상징합니다.
+                    </p>
+                    <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                        <h4 class="text-teal-400 font-bold text-sm mb-2">Design Focus</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            기존의 구상적 형태를 탈피하여, 무궁화 꽃잎의 유기적인 곡선과 이니셜 'h'를 추상적으로 결합. 전문성과 지역성을 동시에 확보하는 고감도 BI를 지향함.
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-white p-10 rounded-[3rem] shadow-2xl flex flex-col items-center">
+                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMjQ1/MDAxNzcwOTU4Nzc1MDc4.CMZKb53WkK8H1G80nfXpF8c7pDeXSMDqiPyMLMDAOY4g.YVeSp36zPmTB5FX5e4d7Ch8AcxnsNcOOKMvN2xuxB_Eg.PNG/d663baa58ee9ba_%EB%B3%B5%EC%82%AC.png?type=w966" 
+                         alt="신규 컨셉 심볼" class="max-w-full h-auto mb-6">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Proposed Healing Hibiscus Symbol</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Summary (Markdown Copy) -->
+        <section id="summary" class="bg-white p-10 md:p-20 rounded-[3rem] shadow-sm border border-slate-100">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-3xl font-black text-slate-900">기획 리포트 전략 요약</h2>
+                <button onclick="copyReport()" class="px-6 py-3 bg-teal-700 text-white rounded-xl font-black text-xs hover:bg-teal-600 transition-all shadow-lg">COPY STRATEGY</button>
+            </div>
+            <div class="bg-slate-50 p-8 md:p-12 rounded-3xl font-mono text-sm leading-[1.8] text-slate-700">
+                <pre id="markdownContent" class="whitespace-pre-wrap">
+1. 전략적 모티프: 무궁화의 현대적 해체
+- 홍천의 상징인 무궁화의 다섯 꽃잎을
+  유선형으로 재해석하여 유기적이며
+  진보적인 치유의 정체성을 구축함.
+- 구상적 형태를 탈피한 추상화를 통해
+  지역적 가치를 고감도 BI로 자산화함.
+
+2. 비주얼 로직: 안정과 흐름의 융합
+- 원형 프레임의 심리적 보호 기제와 
+  'h'의 유연한 회복 곡선을 결합하여
+  전문 보건 기관의 신뢰도를 확보함.
+- '안정 속의 성장'이라는 회복 메시지를
+  현대적 미니멀리즘 언어로 시각화함.
+
+3. 통합 브랜딩: 지역 자산의 자산화
+- 정선군의 지역적 특색 반영 기법과
+  양구군의 신뢰성 구축 공식을 통합,
+  홍천군만의 독창적 BI 자산화 시도.
+- 캐릭터 '다알쥐'와의 높은 연계성을 
+  고려한 유연한 그래픽 시스템 설계.
+
+4. 브랜드 지향점: 미래 치유 플랫폼
+- 구상적 표현을 배제한 고감도 심볼로
+  디지털 환경 및 캐릭터 확장성을 고려,
+  지속 가능한 브랜드 체계를 확립함.
+- 지역사회와 센터가 하나로 연결되는
+  치유의 선순환 구조를 BI에 내재화함.
+                </pre>
+            </div>
+            <p id="copyToast" class="hidden text-center text-teal-600 text-xs font-black mt-4 uppercase tracking-widest">Strategy copied to clipboard!</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-600 py-16 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-black text-white text-lg italic mb-2 tracking-tighter">HCMHC BRANDING IDENTITY PROJECT</p>
+            <p class="text-xs uppercase tracking-[0.3em] font-bold">Strategy & Design Insight Report</p>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyReport() {
+            const content = document.getElementById('markdownContent').textContent;
+            const el = document.createElement('textarea');
+            el.value = content;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const toast = document.getElementById('copyToast');
+            if (toast) {
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 2000);
+            }
+        }
+    </script>
+</body>
+</html>
