@@ -9,188 +9,324 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
-        .da-al-ji-img {
-            height: 144px;
-            width: auto;
-            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+        body { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; scroll-behavior: smooth; }
+        
+        .da-al-ji-img { 
+            height: 288px; width: auto; 
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2)); 
+            transition: transform 0.5s ease;
         }
-        .nav-logo-img {
-            height: 48px; width: auto;
+        .da-al-ji-img:hover { transform: scale(1.05) rotate(-3deg); }
+
+        .nav-logo-img { height: 48px; width: auto; transition: opacity 0.2; }
+        .nav-logo-img:hover { opacity: 0.8; }
+        .squirrel-text { color: #8B5E3C; font-weight: 900; }
+        .proposal-card { border-radius: 4rem; overflow: hidden; background: white; border: 1px solid #f1f5f9; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.06); }
+        .symbol-badge { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 1.2rem; font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1.5rem; }
+        
+        /* 설명 아이콘 스타일 */
+        .desc-icon-box {
+            width: 72px; height: 72px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 1.5rem;
+            margin-top: 1.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
-        .squirrel-text {
-            color: #8B5E3C;
-            font-weight: 900;
-            font-style: normal;
+        .proposal-card:hover .desc-icon-box {
+            transform: translateY(-5px);
+            background: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* 이미지 확대 뷰 (Lightbox) */
+        #lightbox {
+            display: none; position: fixed; z-index: 1000; top: 0; left: 0;
+            width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.97);
+            backdrop-filter: blur(25px); justify-content: center;
+            align-items: flex-start; overflow-y: auto; cursor: default;
+        }
+        #lightbox-img-container { display: flex; justify-content: center; min-height: 100vh; width: 100%; padding: 40px 0; }
+        #lightbox img {
+            width: auto; height: auto; max-width: 85vw; max-height: 85vh;
+            object-fit: contain; box-shadow: 0 0 120px rgba(0,0,0,0.9);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 8px; transform: scale(0.95); opacity: 0;
+        }
+        #lightbox.active img { transform: scale(1); opacity: 1; }
+        #lightbox img.fit-width { max-width: 100vw !important; width: 100vw !important; max-height: none !important; height: auto !important; border-radius: 0; }
+
+        .zoom-controls { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 1100; }
+        .control-btn { width: 56px; height: 56px; border-radius: 16px; background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .control-btn:hover { background-color: rgba(255, 255, 255, 0.25); border-color: #0d9488; color: #2dd4bf; }
+
+        .zoom-overlay { cursor: zoom-in; transition: all 0.3s ease; }
+        .zoom-overlay:hover { transform: scale(1.02); }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            section { page-break-after: always; border: none !important; }
         }
     </style>
-    <!-- Chosen Palette: Hibiscus & Healing (Teal #0D9488, Squirrel Brown #8B5E3C, Slate #1E293B) -->
-    <!-- Application Structure Plan:
-        1. 내비게이션: 구 홍천군 로고 배치 및 리뉴얼 타당성 확보.
-        2. 히어로: 다알쥐 캐릭터 확대 및 정자체 슬로건 배치로 진중함 강조.
-        3. 구 로고 분석: 무궁화 기반 구 로고의 조형적 한계 및 컬러 체계 심층 분석.
-        4. 전략 요약: 35~40자 내외 줄바꿈을 적용한 전문적인 기획 텍스트 제공.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
 <body class="bg-slate-50 text-slate-800">
 
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200">
+    <!-- Lightbox UI -->
+    <div id="lightbox" class="no-print">
+        <button onclick="closeLightbox()" class="fixed top-6 right-6 text-white/40 hover:text-white z-[1101] transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <div class="zoom-controls">
+            <button onclick="zoomStep(0.2)" class="control-btn" title="확대"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg></button>
+            <button onclick="toggleFitWidth()" id="fitBtn" class="control-btn" title="폭기준 꽉차게"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg></button>
+            <button onclick="zoomStep(-0.2)" class="control-btn" title="축소"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg></button>
+            <button onclick="resetZoom()" class="control-btn" title="초기화"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg></button>
+        </div>
+        <div id="lightbox-img-container" onclick="closeLightbox()">
+            <img id="lightbox-img" src="" alt="확대 이미지" onclick="event.stopPropagation()">
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-slate-200 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20">
                 <div class="flex items-center">
-                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTMy/MDAxNzcwOTU4MjExOTk2.PuHkJVUO1TR0Su5jetxLmWfDKfIWHOC7M-DVDMwuZU8g.R2nd_Zff5P-vxybpX5GI-49HLHkSm3OLdkTb6ntQUckg.PNG/2026-02-13_13;48;39.PNG?type=w966" 
-                         alt="구 로고" class="nav-logo-img">
+                    <a href="https://www.hongcheon.go.kr/mental/index.do" target="_blank">
+                        <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTMy/MDAxNzcwOTU4MjExOTk2.PuHkJVUO1TR0Su5jetxLmWfDKfIWHOC7M-DVDMwuZU8g.R2nd_Zff5P-vxybpX5GI-49HLHkSm3OLdkTb6ntQUckg.PNG/2026-02-13_13;48;39.PNG?type=w966" alt="구 로고" class="nav-logo-img">
+                    </a>
                 </div>
-                <div class="hidden md:flex items-center space-x-10 text-sm font-bold">
-                    <button onclick="scrollToSection('legacy')" class="text-slate-500 hover:text-teal-600">구 로고 분석</button>
-                    <button onclick="scrollToSection('strategy')" class="text-slate-500 hover:text-teal-600">디자인 전략</button>
-                    <button onclick="scrollToSection('summary')" class="px-5 py-2 bg-slate-900 text-white rounded-full">리포트 복사</button>
+                <div class="hidden md:flex items-center space-x-10 text-[14px] font-black uppercase tracking-tighter">
+                    <button onclick="scrollToSection('proposal-a')" class="text-slate-500 hover:text-teal-600 transition-all">A-Type Analysis</button>
+                    <button onclick="scrollToSection('proposal-b')" class="text-slate-500 hover:text-blue-600 transition-all">B-Type Analysis</button>
+                    <button onclick="scrollToSection('proposal-c')" class="text-slate-500 hover:text-amber-600 transition-all">C-Type Analysis</button>
+                    <button onclick="scrollToSection('summary')" class="px-7 py-3 bg-slate-900 text-white rounded-full text-xs hover:scale-105 active:scale-95 transition-all shadow-xl">STRATEGY COPY</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <header class="relative bg-white border-b border-slate-100 overflow-hidden min-h-[550px] flex items-center">
-        <div class="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 relative z-10">
-            <div class="max-w-4xl">
-                <span class="inline-block py-1.5 px-4 rounded-full bg-teal-100 text-teal-700 text-xs font-black tracking-widest mb-6 uppercase">Strategic Branding 2026</span>
-                <h1 class="text-4xl md:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight mb-8">
-                    안정의 원형,<br>
-                    <span class="squirrel-text">치유의 유선형.</span>
+    <!-- Hero Section -->
+    <header class="bg-white border-b border-slate-100 py-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-start gap-24">
+            <div class="shrink-0">
+                <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTI4/MDAxNzcwOTU3OTkzMTI3.xEp_RhasFKq0UsIBqF6vxrisBgyoV_GNKntditgEBEYg.IhmZAu7gRt-yiEuafj3Hi1z37XftgBTA_RwfiSAKib0g.PNG/%EB%8B%A4%EC%95%8C%EC%A5%90.png?type=w966" alt="다알쥐" class="da-al-ji-img">
+            </div>
+            <div class="max-w-3xl">
+                <span class="inline-block py-1.5 px-5 rounded-full bg-teal-100 text-teal-800 text-[11px] font-black tracking-[0.2em] mb-8 uppercase">Final Design Proposal 2026</span>
+                <h1 class="text-6xl md:text-8xl font-black text-slate-900 leading-[1.05] mb-10 tracking-tighter">
+                    안정의 원형,<br><span class="squirrel-text">치유의 유선형.</span>
                 </h1>
-                <p class="text-xl text-slate-500 leading-relaxed font-light mb-12">
-                    홍천의 상징 무궁화를 현대적 유선형으로 재해석하여<br>
-                    마음의 회복과 지역적 정체성을 하나로 통합합니다.
-                </p>
-                <div class="flex items-center gap-12">
-                    <button onclick="scrollToSection('strategy')" class="px-10 py-4 bg-teal-700 text-white rounded-2xl font-black shadow-2xl hover:bg-teal-600 transition-all transform hover:-translate-y-1">
-                        디자인 컨셉 스튜디오
-                    </button>
-                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTI4/MDAxNzcwOTU3OTkzMTI3.xEp_RhasFKq0UsIBqF6vxrisBgyoV_GNKntditgEBEYg.IhmZAu7gRt-yiEuafj3Hi1z37XftgBTA_RwfiSAKib0g.PNG/%EB%8B%A4%EC%95%8C%EC%A5%90.png?type=w966" 
-                         alt="다알쥐 캐릭터" class="da-al-ji-img">
+                <p class="text-2xl text-slate-500 leading-relaxed font-light mb-12 max-w-2xl">홍천의 상징 무궁화를 현대적으로 재해석하여 마음의 회복과 지역적 정체성을 하나로 통합한 시안 3종을 제안합니다.</p>
+                <div class="flex items-center gap-5 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="animate-bounce"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m4-3H6" /></svg>
+                    <p class="text-sm font-bold uppercase tracking-widest italic text-teal-600">Click images to view in 100% width</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-32">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-56">
 
-        <section id="legacy">
-            <div class="flex flex-col lg:flex-row gap-16 items-start">
-                <div class="lg:w-1/3">
-                    <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border border-slate-100 text-center">
-                        <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMTMy/MDAxNzcwOTU4MjExOTk2.PuHkJVUO1TR0Su5jetxLmWfDKfIWHOC7M-DVDMwuZU8g.R2nd_Zff5P-vxybpX5GI-49HLHkSm3OLdkTb6ntQUckg.PNG/2026-02-13_13;48;39.PNG?type=w966" 
-                             alt="구 로고" class="mx-auto h-32 mb-8">
-                        <div class="grid grid-cols-5 gap-1">
-                            <div class="h-2 bg-[#E5007E] rounded-full"></div>
-                            <div class="h-2 bg-[#009245] rounded-full"></div>
-                            <div class="h-2 bg-[#0071BC] rounded-full"></div>
-                            <div class="h-2 bg-[#F7941D] rounded-full"></div>
-                            <div class="h-2 bg-[#FCEE21] rounded-full"></div>
+        <!-- Proposal A-Type -->
+        <section id="proposal-a" class="proposal-card p-10 md:p-20">
+            <div class="flex flex-col lg:flex-row gap-24">
+                <div class="lg:w-1/2 flex flex-col">
+                    <span class="symbol-badge bg-teal-50 text-teal-700">Type A Analysis</span>
+                    <h2 class="text-5xl font-black text-slate-900 mb-10 leading-tight">소통과 화합의 중심</h2>
+                    <p class="text-xl text-slate-600 leading-relaxed mb-16">심볼의 중심에 <strong>'H'를 음각 구조</strong>로 배치하여 기관의 정체성을 확립하고, 따옴표와 무궁화 곡선을 결합하여 경청과 치유를 형상화했습니다.</p>
+                    
+                    <div class="space-y-16">
+                        <div class="group">
+                            <h4 class="font-black text-teal-700 text-2xl mb-4">경청과 소통 - 따옴표</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">마음의 목소리에 귀 기울이는 '경청'과 상담을 통한 '소통'을 상징합니다.</p>
+                            <div class="desc-icon-box text-teal-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H16.017C14.9124 8 14.017 7.10457 14.017 6V5C14.017 3.89543 14.9124 3 16.017 3H21.017C22.1216 3 23.017 3.89543 23.017 5V15C23.017 18.3137 20.3307 21 17.017 21H14.017ZM1 21L1 18C1 16.8954 1.89543 16 3 16H6C6.55228 16 7 15.5523 7 15V9C7 8.44772 6.55228 8 6 8H3C1.89543 8 1 7.10457 1 6V5C1 3.89543 1.89543 3 3 3H8C9.10457 3 10 3.89543 10 5V15C10 18.3137 7.31371 21 4 21H1Z"/></svg>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <h4 class="font-black text-teal-700 text-2xl mb-4">지역 상징 - 무궁화</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">군화 무궁화 꽃잎에서 착안, 마음 건강의 재생과 생명력을 시각화했습니다.</p>
+                            <div class="desc-icon-box text-teal-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 22C12 22 20 18 20 12C20 6 12 2 12 2C12 2 4 6 4 12C4 18 12 22 12 22Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lg:w-2/3">
-                    <h2 class="text-3xl font-black text-slate-900 mb-8 italic">구 홍천군 로고 정밀 분석</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h4 class="font-black text-teal-700 mb-4">상징과 의미</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed">
-                                무궁화 꽃잎 형상을 통해 군민의 화합과 번영을 상징함. 중앙 기둥은 미래의 빛을 의미하나, 다색 체계로 인해 전문 기관의 인상을 주기에는 조형적 한계가 존재함.
-                            </p>
-                        </div>
-                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-                            <h4 class="font-black text-amber-700 mb-4">리뉴얼 시사점</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed">
-                                오방색 기반의 다색 체계에서 벗어나 신뢰감을 주는 단일 톤의 틸(Teal) 컬러를 적용하고, 직접적인 무궁화 형태를 추상적 유선형으로 고도화할 필요가 있음.
-                            </p>
-                        </div>
-                    </div>
+                <div class="lg:w-1/2 bg-slate-50 rounded-[4rem] flex items-center justify-center p-12 border border-slate-100 shadow-inner overflow-hidden">
+                    <img src="https://drive.google.com/thumbnail?id=1gnRSMc_HzJRfkap4AQ7tg7WQyLkYvwRu&sz=w2000" alt="A시안" class="max-w-full h-auto drop-shadow-2xl zoom-overlay" onclick="openLightbox(this.src)">
                 </div>
             </div>
         </section>
 
-        <section id="strategy" class="bg-slate-900 rounded-[3rem] p-10 md:p-20 text-white relative overflow-hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                <div>
-                    <span class="text-teal-400 font-black tracking-widest text-xs uppercase mb-4 block">New Strategy</span>
-                    <h2 class="text-3xl md:text-5xl font-black mb-8 leading-tight">무궁화를 모티프로 한<br>'치유의 꽃잎'</h2>
-                    <p class="text-slate-400 leading-relaxed mb-10 font-light text-lg">
-                        홍천의 상징인 무궁화 꽃잎 곡선을 추출하여, 마음의 유연한 회복과 성장을 상징하는 유선형 심볼로 재구성함.
-                    </p>
+        <!-- Proposal B-Type -->
+        <section id="proposal-b" class="proposal-card p-10 md:p-20">
+            <div class="flex flex-col lg:flex-row gap-24">
+                <div class="lg:w-1/2 flex flex-col">
+                    <span class="symbol-badge bg-blue-50 text-blue-700">Type B Analysis</span>
+                    <h2 class="text-5xl font-black text-slate-900 mb-10 leading-tight">신뢰와 상생의 울타리</h2>
+                    <p class="text-xl text-slate-600 leading-relaxed mb-16">홍천군의 공식 아이덴티티를 기반으로, 군민의 마음을 따뜻하게 감싸 안는 <strong>'심리적 안전망'</strong>과 활기찬 미래의 순환을 시각화했습니다.</p>
+                    
+                    <div class="space-y-16">
+                        <div class="group">
+                            <h4 class="font-black text-blue-700 text-2xl mb-4">보호의 원형 - 안전망</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">외부 스트레스로부터 군민을 보호하는 든든한 복지 울타리를 상징합니다.</p>
+                            <div class="desc-icon-box text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="11" r="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <h4 class="font-black text-blue-700 text-2xl mb-4">공신력 있는 비주얼</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">홍천군 고유 심볼 자산을 활용하여 높은 행정적 신뢰감을 전달합니다.</p>
+                            <div class="desc-icon-box text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-2.094 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946 2.094 3.42 3.42 0 013.138 3.138 3.42 3.42 0 002.094 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-2.094 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946 2.094 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-2.094 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-2.094-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 002.094-1.946 3.42 3.42 0 013.138-3.138z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-10 rounded-[3rem] shadow-2xl flex flex-col items-center">
-                    <img src="https://postfiles.pstatic.net/MjAyNjAyMTNfMjQ1/MDAxNzcwOTU4Nzc1MDc4.CMZKb53WkK8H1G80nfXpF8c7pDeXSMDqiPyMLMDAOY4g.YVeSp36zPmTB5FX5e4d7Ch8AcxnsNcOOKMvN2xuxB_Eg.PNG/d663baa58ee9ba_%EB%B3%B5%EC%82%AC.png?type=w966" 
-                         alt="신규 심볼" class="max-w-full h-auto">
+                <div class="lg:w-1/2 bg-slate-50 rounded-[4rem] flex items-center justify-center p-12 border border-slate-100 shadow-inner overflow-hidden">
+                    <img src="https://drive.google.com/thumbnail?id=1pgK7J8aKhzB6qm0_xU_6FifnUAuWPB2w&sz=w2000" alt="B시안" class="max-w-full h-auto drop-shadow-2xl zoom-overlay" onclick="openLightbox(this.src)">
                 </div>
             </div>
         </section>
 
-        <section id="summary" class="bg-white p-10 md:p-20 rounded-[3rem] shadow-sm border border-slate-100">
-            <div class="flex justify-between items-center mb-12">
-                <h2 class="text-3xl font-black text-slate-900">기획 리포트 전략 요약</h2>
-                <button onclick="copyReport()" class="px-6 py-3 bg-teal-700 text-white rounded-xl font-black text-xs shadow-lg">COPY STRATEGY</button>
+        <!-- Proposal C-Type -->
+        <section id="proposal-c" class="proposal-card p-10 md:p-20">
+            <div class="flex flex-col lg:flex-row gap-24">
+                <div class="lg:w-1/2 flex flex-col">
+                    <span class="symbol-badge bg-amber-50 text-amber-700">Type C Analysis</span>
+                    <h2 class="text-5xl font-black text-slate-900 mb-10 leading-tight">마음을 더하는 보살핌</h2>
+                    <p class="text-xl text-slate-600 leading-relaxed mb-16">하트와 플러스(+) 기호를 결합하여, 지친 마음에 <strong>전문적인 복지 서비스</strong>를 더해 희망을 꽃피우는 센터의 가치를 담았습니다.</p>
+                    
+                    <div class="space-y-16">
+                        <div class="group">
+                            <h4 class="font-black text-amber-700 text-2xl mb-4">하트와 플러스 - 치유</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">군민을 향한 사랑에 전문적인 치유와 복지 혜택이 더해짐을 상징합니다.</p>
+                            <div class="desc-icon-box text-amber-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11v6m3-3H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <h4 class="font-black text-amber-700 text-2xl mb-4">현대적 미니멀리즘</h4>
+                            <p class="text-lg text-slate-500 leading-relaxed">복잡한 장식을 배제하고 기하학적 곡선을 활용해 현대적 이미지를 구축했습니다.</p>
+                            <div class="desc-icon-box text-amber-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14l7 7m-7 0l7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 bg-slate-50 rounded-[4rem] flex items-center justify-center p-12 border border-slate-100 shadow-inner overflow-hidden">
+                    <img src="https://drive.google.com/thumbnail?id=1KVGhqYn7hgWGZ_GQqpSUvjnK47xuZHuG&sz=w2000" alt="C시안" class="max-w-full h-auto drop-shadow-2xl zoom-overlay" onclick="openLightbox(this.src)">
+                </div>
             </div>
-            <div class="bg-slate-50 p-8 md:p-12 rounded-3xl font-mono text-sm leading-[1.8] text-slate-700">
-                <pre id="markdownContent" class="whitespace-pre-wrap text-xs md:text-sm">
-1. 전략적 모티프: 무궁화의 현대적 해체
-- 홍천의 상징인 무궁화의 다섯 꽃잎을
-  유선형으로 재해석하여 유기적이며
-  진보적인 치유의 정체성을 구축함.
-- 구상적 형태를 탈피한 추상화를 통해
-  지역적 가치를 고감도 BI로 자산화함.
+        </section>
 
-2. 비주얼 로직: 안정과 흐름의 융합
-- 원형 프레임의 심리적 보호 기제와 
-  'h'의 유연한 회복 곡선을 결합하여
-  전문 보건 기관의 신뢰도를 확보함.
-- '안정 속의 성장'이라는 회복 메시지를
-  현대적 미니멀리즘 언어로 시각화함.
+        <!-- Summary Section -->
+        <section id="summary" class="bg-white p-12 md:p-24 rounded-[5rem] shadow-sm border border-slate-100 no-print">
+            <div class="flex justify-between items-center mb-16">
+                <h2 class="text-4xl font-black text-slate-900 italic">디자인 전략 브리핑</h2>
+                <button onclick="copyReport()" class="px-10 py-4 bg-slate-900 text-white rounded-3xl font-black text-xs hover:scale-105 transition-transform active:scale-95 shadow-2xl">COPY STRATEGY</button>
+            </div>
+            <div class="bg-slate-50 p-12 rounded-[4rem] font-mono text-sm leading-[2.2] text-slate-700 border border-slate-200 shadow-inner">
+                <pre id="markdownContent" class="whitespace-pre-wrap">
+1. A-Type: 소통과 화합의 중심
+- 음각 H 구조를 축으로 무궁화 꽃잎과
+  상담의 따옴표를 결합한 고감도 조형.
+- 가장 전문적이고 독창적인 심볼 제안.
 
-3. 통합 브랜딩: 지역 자산의 자산화
-- 정선군의 지역적 특색 반영 기법과
-  양구군의 신뢰성 구축 공식을 통합,
-  홍천군만의 독창적 BI 자산화 시도.
-- 캐릭터 '다알쥐'와의 높은 연계성을 
-  고려한 유연한 그래픽 시스템 설계.
+2. B-Type: 신뢰와 상생의 울타리
+- 홍천군 고유 심볼을 계승하여 행정적
+  공신력과 안정감을 극대화한 시안.
+- 보건소 연계성을 중시하는 전통적 접근.
 
-4. 브랜드 지향점: 미래 치유 플랫폼
-- 구상적 표현을 배제한 고감도 심볼로
-  디지털 환경 및 캐릭터 확장성을 고려,
-  지속 가능한 브랜드 체계를 확립함.
-- 지역사회와 센터가 하나로 연결되는
-  치유의 선순환 구조를 BI에 내재화함.
+3. C-Type: 마음을 더하는 보살핌
+- 하트와 플러스의 결합으로 사랑에
+  전문 복지를 더한다는 가치 명시.
+- 미니멀한 기호화로 현대적 감각 강조.
                 </pre>
             </div>
-            <p id="copyToast" class="hidden text-center text-teal-600 text-xs font-black mt-4 uppercase tracking-widest">Strategy copied to clipboard!</p>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-slate-600 py-16 text-center">
-        <p class="font-black text-white text-lg italic mb-2 tracking-tighter">HCMHC BRANDING IDENTITY PROJECT</p>
-        <p class="text-xs uppercase tracking-[0.3em] font-bold">Strategy & Design Insight Report</p>
+    <footer class="bg-slate-900 text-slate-500 py-24 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-black text-white text-3xl italic mb-6 uppercase tracking-tighter">Hcmhc Design Strategy Report</p>
+            <p class="text-[11px] uppercase tracking-[0.7em] font-black opacity-30">Strategy & Creative Direction by IA</p>
+        </div>
     </footer>
 
     <script>
         function scrollToSection(id) {
             const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (el) {
+                const offset = 120;
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = el.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+            }
         }
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        let currentScale = 1;
+        let isFitWidth = false;
+
+        function openLightbox(src) {
+            const highResSrc = src.replace('sz=w1000', 'sz=w2000');
+            lightboxImg.src = highResSrc;
+            lightbox.style.display = 'flex';
+            resetZoom();
+            setTimeout(() => { lightbox.classList.add('active'); }, 10);
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            setTimeout(() => { lightbox.style.display = 'none'; document.body.style.overflow = 'auto'; }, 300);
+        }
+
+        function toggleFitWidth() {
+            isFitWidth = !isFitWidth;
+            if (isFitWidth) {
+                lightboxImg.classList.add('fit-width');
+                lightboxImg.style.transform = 'scale(1)';
+                currentScale = 1;
+                document.getElementById('fitBtn').style.color = '#2dd4bf';
+                document.getElementById('fitBtn').style.borderColor = '#0d9488';
+            } else {
+                lightboxImg.classList.remove('fit-width');
+                resetZoom();
+            }
+        }
+
+        function zoomStep(delta) {
+            if (isFitWidth) return;
+            currentScale = Math.min(Math.max(0.5, currentScale + delta), 4);
+            lightboxImg.style.transform = `scale(${currentScale})`;
+        }
+
+        function resetZoom() {
+            isFitWidth = false; currentScale = 1;
+            lightboxImg.classList.remove('fit-width');
+            lightboxImg.style.transform = 'scale(1)';
+            document.getElementById('fitBtn').style.color = 'white';
+            document.getElementById('fitBtn').style.borderColor = 'rgba(255,255,255,0.2)';
+        }
+
         function copyReport() {
             const content = document.getElementById('markdownContent').textContent;
             const el = document.createElement('textarea');
             el.value = content;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            const toast = document.getElementById('copyToast');
-            if (toast) {
-                toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 2000);
-            }
+            document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+            alert('디자인 전략 브리핑 내용이 복사되었습니다.');
         }
+
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
     </script>
 </body>
 </html>
